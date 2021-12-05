@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from exceptions import DimensionsException
 from math import ceil
+from sklearn.preprocessing import LabelEncoder
 
 
 def get_dataset(name) -> (np.ndarray, np.ndarray):
@@ -31,6 +32,20 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
                 np.float32).mean()
         df.to_csv("./Datasets/auto_mpg/auto-mpg.csv", index=False)
         """
+
+    elif name == "iris":
+        columns = ["sepal length", "sepal width", "petal length", "petal width", "class"]
+        train_col = ["sepal length", "sepal width", "petal length", "petal width"]
+        test_col = ["class"]
+
+        df = pd.read_csv("./Datasets/iris/iris.data", names=columns)
+
+        encoder = LabelEncoder()
+        # df.loc[df[test_col] == "Iris-setosa"][test_col] = 0
+        # df.loc[df[test_col] == "Iris-versicolour"][test_col] = 1
+        # df.loc[df[test_col] == "Iris-viriginica"][test_col] = 2
+        df["class"] = encoder.fit_transform(df["class"])
+        df.loc[df["class"] == 2] = 1
 
     return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
 

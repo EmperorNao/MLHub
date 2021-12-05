@@ -8,7 +8,7 @@ def sgd(x: np.ndarray,
         smart_init=False,
         w: np.ndarray = None,
         lam: float = 0.9,
-        eps = 1e-6,
+        eps=1e-6,
         batch_size=1,
         max_iter=10000) -> (np.ndarray, float):
 
@@ -23,11 +23,13 @@ def sgd(x: np.ndarray,
 
     w = np.expand_dims(w, -1)
 
+    grad_coef = np.asarray([grad_loss_fn(w, np.expand_dims(x[i], axis=0), y[i]) for i in range(n_objects)])
+    grad_sum = np.sum(grad_coef, axis=0)
 
     delta_q = float("inf")
     delta_w = np.array([float("inf")] * n_features)
     loss = loss_fn(w, x, y)
-    q = np.mean(loss)
+    q = np.sum(loss) / x.shape[0]
 
     iter = 0
     while iter < max_iter and (abs(delta_q) > eps or abs(np.sum(delta_w)) > (eps * n_features)):
@@ -36,27 +38,21 @@ def sgd(x: np.ndarray,
         x_obj = x[idx_obj,:]
         y_obj = y[idx_obj]
 
-        loss = np.mean(loss_fn(w, x_obj, y_obj))
-        delta_w = lr * grad_loss_fn(w, x_obj, y_obj)
+        loss = np.sum(loss_fn(w, x_obj, y_obj)) / x_obj.shape[0]
+
+        grad = grad_loss_fn(w, x_obj, y_obj)
+        grad_sum -= grad_coef[idx_obj[0]]
+        grad_coef[idx_obj[0]] = grad
+        grad_sum += grad_coef[idx_obj[0]]
+
+        delta_w = lr * grad_sum / n_objects
         w = w - delta_w
 
         new_q = lam * loss + (1 - lam) * q
         delta_q = new_q - q
         q = new_q
 
+        #print(f"iter {iter}\ngrad = {grad}\ndelta w = {delta_w}\ndelta q = {delta_q}\n\n")
         iter += 1
 
     return w, q
-
-
-
-
-
-
-
-
-
-
-
-
-
