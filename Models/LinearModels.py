@@ -1,6 +1,6 @@
 import numpy as np
 from exceptions import DimensionsException
-from Optimizators import sgd
+from Optimizers.Optimizators import sgd
 
 
 class LinearRegression:
@@ -23,7 +23,7 @@ class LinearRegression:
 
         self.analytic_solution = analytic_solution
 
-    def train(self, x: np.ndarray, y: np.ndarray):
+    def train(self, optimizer, x: np.ndarray, y: np.ndarray):
 
         if x.shape[0] != y.shape[0]:
             raise DimensionsException("X and y has different number of objects")
@@ -39,7 +39,7 @@ class LinearRegression:
         if self.analytic_solution:
             w = np.dot(np.linalg.inv(np.dot(x_padded.T, x_padded) + self.L2_coefficient * l_i), np.dot(x_padded.T, y))
         else:
-            w, q = sgd(x_padded, y, 0.00000001, self.loss, self.grad_loss, batch_size=1)
+            w, q = optimizer.fit(x_padded, y, 0.00000001, self.loss, self.grad_loss, batch_size=1)
         self.weights = w
 
     def loss(self, w: np.ndarray, x: np.ndarray, y: np.ndarray):
