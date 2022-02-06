@@ -2,15 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import linear_model
 
-from Optimizers.Optimizators import SGDOptimizer
 from Models.LinearModels import LinearRegression
 from datasets import train_test_split
 from Metrics.metrics import rmse, mse
 
+from Optimizers.Optimizators import SGDOptimizer
+# будем бенчмаркать с sklearn
 
-def LR_test():
+# пообучаем на данных с разным шумом и посмотрим метрики:
+
+
+def sgd_test():
 
     for scale in [0, 1.41, 4, 9, 25, 36, 100]:
+
         # max iter обеспечивает гораздо более лучшую сходимость
         # для улучшения качества пробуйте увеличить max_iter
 
@@ -22,7 +27,7 @@ def LR_test():
         sgd_lr = LinearRegression(analytic_solution=False, optimizer=optim)
 
         N = 100
-        # x, y = get_dataset("auto-mpg")
+        #x, y = get_dataset("auto-mpg")
         pairs = np.array([np.array([i, i * 5 + 2 + np.random.normal(scale=scale)]) for i in range(0, N)])
         x = np.expand_dims(pairs[:, 0], -1)
         y = np.expand_dims(pairs[:, 1], -1)
@@ -43,13 +48,11 @@ def LR_test():
         y_pred_l2_reg = sgd_lr.predict(x_test)
 
         print(f"Scale = {scale}")
-        print("RMSE")
         print(f"RMSE on SLKEARN = {rmse(y_test, y_pred_sklearn)}")
         print(f"RMSE on our LR = {rmse(y_test, y_pred_simple)}")
         print(f"RMSE on LR + L2_reg = {rmse(y_test, y_pred_l2_reg)}")
         print(f"RMSE on SGD = {rmse(y_test, y_pred_sgd)}")
 
-        print("MSE")
         print(f"MSE on SKLEARN = {mse(y_test, y_pred_sklearn)}")
         print(f"MSE on our LR = {mse(y_test, y_pred_simple)}")
         print(f"MSE on LR + L2_reg = {mse(y_test, y_pred_l2_reg)}")
@@ -58,7 +61,7 @@ def LR_test():
 
         n_obj = y_test.shape[0]
 
-        fig = plt.figure(figsize=(15, 10))
+        fig = plt.figure(figsize = (15, 10))
 
         plt.subplot(2, 2, 1)
         plt.title("Our LR")
@@ -84,4 +87,4 @@ def LR_test():
 
 
 if __name__ == "__main__":
-    LR_test()
+    sgd_test()
