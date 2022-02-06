@@ -1,5 +1,5 @@
 import numpy as np
-
+from exceptions import DimensionsException
 
 def rmse(y_real: np.ndarray, y_pred: np.ndarray) -> float:
 

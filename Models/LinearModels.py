@@ -11,19 +11,15 @@ class LinearRegression:
     # dL/dw = 2 * X.T * (X*w - y)
     # dL/dw.shape = (l, 1)
 
-    def __init__(self, weights: np.ndarray = None, L1=False, L2=False, L2_coefficient: int = 0,
+    def __init__(self, weights: np.ndarray = None, optimizer=None, L2_coefficient: float = 0,
                  analytic_solution=True):
 
         self.weights = weights
-        self.L2 = L2
-        if not self.L2:
-            self.L2_coefficient = 0
-        else:
-            self.L2_coefficient = L2_coefficient if L2_coefficient != 0 else 0.05
-
+        self.optimizer = optimizer
+        self.L2_coefficient = L2_coefficient
         self.analytic_solution = analytic_solution
 
-    def train(self, optimizer, x: np.ndarray, y: np.ndarray):
+    def fit(self, x: np.ndarray, y: np.ndarray):
 
         if x.shape[0] != y.shape[0]:
             raise DimensionsException("X and y has different number of objects")
@@ -36,10 +32,10 @@ class LinearRegression:
 
         l_i = np.eye(n_features, n_features)
 
-        if self.analytic_solution:
+        if self.analytic_solution or not self.optimizer:
             w = np.dot(np.linalg.inv(np.dot(x_padded.T, x_padded) + self.L2_coefficient * l_i), np.dot(x_padded.T, y))
         else:
-            w, q = optimizer.fit(x_padded, y, 0.00000001, self.loss, self.grad_loss, batch_size=1)
+            w, q = self.optimizer.fit(x_padded, y, self.loss, self.grad_loss)
         self.weights = w
 
     def loss(self, w: np.ndarray, x: np.ndarray, y: np.ndarray):
@@ -69,22 +65,88 @@ class LinearRegression:
         return np.dot(x_padded, self.weights)
 
 
-class SignClassifier:
-    # e^(-<w, x>)
+class BinaryClassifier:
 
-    def __init__(self, weights: np.ndarray = None, L1=False, L2=False, L2_coefficient: int = 0,
-                 analytic_solution=True):
+    def __init__(self, weights: np.ndarray = None, L2_coefficient: float = 0, logging=False):
 
         self.weights = weights
-        self.L2 = L2
-        if not self.L2:
-            self.L2_coefficient = 0
-        else:
-            self.L2_coefficient = L2_coefficient if L2_coefficient != 0 else 0.05
+        self.L2_coefficient = L2_coefficient if L2_coefficient != 0 else 0.05
+        self.logging=logging
 
-        self.analytic_solution = analytic_solution
+    def fit(self, x: np.ndarray, y: np.ndarray, optimizer):
 
-    def train(self, x: np.ndarray, y: np.ndarray):
+        if x.shape[0] != y.shape[0]:
+            raise DimensionsException("X and y has different number of objects")
+
+        n_objects = x.shape[0]
+        n_features = x.shape[1] + 1
+        ones = 1 * np.ones((n_objects, 1))
+
+        x_padded = np.hstack([x, ones])
+
+        y_transformed = []
+        for el_y in y:
+            if el_y == 1:
+                y_transformed.append(1)
+            else:
+                y_transformed.append(0)
+
+        w, q, history = optimizer.fit(x_padded, np.expand_dims(y, -1), self.loss, self.grad_loss, get_hist=True)
+        self.weights = w
+
+        return history
+
+    def sigmoid(self, x, w):
+        # x.shape = m x n
+        # y.shape = m x 1
+        # w.shape = n x 1
+        # out shape = m x 1
+
+        rev = np.exp(-1 * np.dot(x, w))
+        return 1 / (np.ones([x.shape[0], w.shape[1]]) + rev)
+
+    def loss(self, w: np.ndarray, x: np.ndarray, y: np.ndarray):
+        # x.shape = m x n
+        # y.shape = m x 1
+        # w.shape = n x 1
+
+        sigm_res = self.sigmoid(x, w)
+
+        return np.mean(-1 * y * np.log(sigm_res) + \
+        -1 * (np.ones_like(y) - y) * np.log(np.ones([x.shape[0], w.shape[1]]) - sigm_res))
+
+    def grad_loss(self, w: np.ndarray, x: np.ndarray, y: np.ndarray):
+        # x.shape = m x n
+        # y.shape = m x 1
+        # w.shape = n x 1
+        # out shape = ((m x n) * (n x 1) - (m x 1)) = (n x m) * (m x 1) = (n x 1)
+
+        return np.dot(x.T, (self.sigmoid(x, w) - y))
+
+    def predict(self, x: np.ndarray) -> np.ndarray:
+
+        n_objects = x.shape[0]
+        n_features = x.shape[1] + 1
+        ones = 1 * np.ones((n_objects, 1))
+
+        x_padded = np.hstack([x, ones])
+
+        pred = self.sigmoid(x_padded, self.weights)
+        if self.logging:
+            print(self.weights)
+            print(pred)
+        return (pred >= 0.5).astype(dtype="int").squeeze(-1)
+
+
+class LogisticRegression:
+
+    def __init__(self, weights: np.ndarray = None, L2_coefficient: float = 0, logging=False):
+
+        self.weights = weights
+        self.L2_coefficient = L2_coefficient if L2_coefficient != 0 else 0.05
+        self.logging=logging
+
+    def fit(self, x: np.ndarray, y: np.ndarray, optimizer):
 
         if x.shape[0] != y.shape[0]:
             raise DimensionsException("X and y has different number of objects")
@@ -102,15 +164,29 @@ class SignClassifier:
             else:
                 y_transformed.append(-1)
 
-        w, q = sgd(x_padded, np.array(y_transformed), 0.00001, self.loss, self.grad_loss, batch_size=32)
+        w, q, history = optimizer.fit(x_padded, np.expand_dims(y, -1), self.loss, self.grad_loss, get_hist=True)
         self.weights = w
+
+        return history
+
+    def sigmoid(self, x, w):
+        # x.shape = m x n
+        # y.shape = m x 1
+        # w.shape = n x 1
+        # out shape = m x 1
+
+        rev = np.exp(-1 * np.dot(x, w))
+        return 1 / (np.ones([x.shape[0], w.shape[1]]) + rev)
 
     def loss(self, w: np.ndarray, x: np.ndarray, y: np.ndarray):
         # x.shape = m x n
         # y.shape = m x 1
         # w.shape = n x 1
 
-        return np.exp(np.dot(x, w) * y)
+        sigm_res = self.sigmoid(x, w)
+
+        return np.mean(-1 * y * np.log(sigm_res) + \
+        -1 * (np.ones_like(y) - y) * np.log(np.ones([x.shape[0], w.shape[1]]) - sigm_res))
 
     def grad_loss(self, w: np.ndarray, x: np.ndarray, y: np.ndarray):
         # x.shape = m x n
@@ -118,17 +194,18 @@ class SignClassifier:
         # w.shape = n x 1
         # out shape = ((m x n) * (n x 1) - (m x 1)) = (n x m) * (m x 1) = (n x 1)
 
-        return np.dot(x.T, np.exp(np.dot(x, w) * y))
+        return np.dot(x.T, (self.sigmoid(x, w) - y))
 
     def predict(self, x: np.ndarray) -> np.ndarray:
 
         n_objects = x.shape[0]
+        n_features = x.shape[1] + 1
         ones = 1 * np.ones((n_objects, 1))
+
         x_padded = np.hstack([x, ones])
 
-        if x_padded.shape[1] != self.weights.shape[0]:
-            raise DimensionsException("Wrong number of features")
-
-        res = np.dot(x_padded, self.weights) > 0
-
-        return res > 0
+        pred = self.sigmoid(x_padded, self.weights)
+        if self.logging:
+            print(self.weights)
+            print(pred)
+        return (pred >= 0.5).astype(dtype="int").squeeze(-1)

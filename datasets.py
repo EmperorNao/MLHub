@@ -65,4 +65,4 @@ def train_test_split(x: np.ndarray,
     idx_train = list(np.random.choice(idx_full, size))
     idx_test = list(set(idx_full).difference(idx_train))
 
-    return (x[idx_train, :], x[idx_test, :]), (y[idx_train, :], y[idx_test, :])
+    return (x[idx_train, :], x[idx_test, :]), (y[idx_train], y[idx_test])
