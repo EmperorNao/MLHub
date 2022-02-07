@@ -22,9 +22,9 @@ def sgd(x: np.ndarray,
             for i in range(n_features):
                 w[i] = np.random.normal(0, 1 / (2 * x.shape[0]))
 
-    w = np.expand_dims(w, -1)
+        w = np.expand_dims(w, -1)
 
-    grad_coef = np.asarray([grad_loss_fn(w, np.expand_dims(x[i], axis=0), y[i]) for i in range(n_objects)])
+    grad_coef = np.asarray([grad_loss_fn(w, np.expand_dims(x[i], 0), y[i]) for i in range(n_objects)])
     grad_sum = np.sum(grad_coef, axis=0)
 
 
@@ -64,7 +64,7 @@ def sgd(x: np.ndarray,
         history.append(q)
 
         if logging:
-            print(f"Iter = {iter}, Loss = {q}")
+            print(f"Iter = {iter}, Loss = {q}, delta_w = {delta_w}")
 
     return w, q, history
 
@@ -74,7 +74,6 @@ class SGDOptimizer:
     def __init__(self,
                  lr: float =1e-4,
                  smart_init=False,
-                 w: np.ndarray = None,
                  lam: float = 0.9,
                  eps = 1e-6,
                  max_iter = 10000,
@@ -82,7 +81,6 @@ class SGDOptimizer:
 
         self.lr = lr
         self.smart_init = smart_init
-        self.w = w
         self.lam = lam
         self.eps = eps
         self.max_iter = max_iter
@@ -93,11 +91,12 @@ class SGDOptimizer:
             y: np.ndarray,
             loss_fn,
             grad_loss_fn,
+            w: np.ndarray = None,
             get_hist=False) -> (np.ndarray, float):
         # weight and quality
 
         res = sgd(x, y, loss_fn, grad_loss_fn,
-                   self.lr, self.smart_init, self.w, self.lam, self.eps, 1, self.max_iter, self.logging)
+                   self.lr, self.smart_init, w, self.lam, self.eps, 1, self.max_iter, self.logging)
 
         if get_hist:
             return res
