@@ -5,6 +5,82 @@ from math import ceil
 from sklearn.preprocessing import LabelEncoder
 
 
+def one_hot_encoding(x: pd.DataFrame) -> np.ndarray:
+
+    unique = x.unique()
+
+    ohe = np.zeros([len(x), len(unique)])
+    for i, kv in enumerate(x.iteritems()):
+        index, v = kv
+        ohe[i][np.where(unique == v)] = 1
+
+    return ohe
+
+
+def scale(x: np.ndarray) -> np.ndarray:
+
+    z = ((x - x.mean()) / x.std())
+    return z
+
+
+def adult(df):
+
+    numerical = ['age', 'fnlwgt', 'education-num', 'capital-gain', 'capital-loss', 'hours-per-week']
+    categorical = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country']
+    columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex','capital-gain', 'capital-loss', 'hours-per-week', 'native-country', '>50K']
+    target = ['>50K']
+
+    df.columns = columns
+    un = df[target].iloc[:,0].unique()
+    y = (df[target] == un[0]).to_numpy(dtype="int")
+    x = []
+
+    processed = []
+    #one-hot-encoding categorical
+    for col in categorical:
+        x.append(one_hot_encoding(df[col]))
+
+    x += [np.expand_dims(scale(df[col].to_numpy()), -1) for col in numerical]
+    for col in numerical:
+        x.append(np.expand_dims(scale(df[col].to_numpy()), -1))
+
+    for ohe in processed:
+        x.append(scale(ohe))
+
+    return np.hstack(x), y
+
+
+def titanic(df):
+
+    #df = df.dropna()
+    df = df.apply(lambda x: x.fillna(x.value_counts().index[0]))
+    numerical = ['Age', 'Fare', ]
+    categorical = ['Pclass', 'Sex', 'SibSp', 'Embarked']
+    # columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
+    #            'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country',
+    #            '>50K']
+    target = ['Survived']
+
+    #df.columns = columns
+    un = df[target].iloc[:, 0].unique()
+    y = (df[target] == un[0]).to_numpy(dtype="int")
+    x = []
+
+    processed = []
+    # one-hot-encoding categorical
+    for col in categorical:
+        x.append(one_hot_encoding(df[col]))
+
+    x += [np.expand_dims(scale(df[col].to_numpy()), -1) for col in numerical]
+    for col in numerical:
+        x.append(np.expand_dims(scale(df[col].to_numpy()), -1))
+
+    for ohe in processed:
+        x.append(scale(ohe))
+
+    return np.hstack(x), y
+
+
 def get_dataset(name) -> (np.ndarray, np.ndarray):
 
     if name == "forestfires":
@@ -19,19 +95,6 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
         test_col = ["mpg"]
 
         df = pd.read_csv("./Datasets/auto_mpg/auto-mpg.csv")
-        """
-        # old read
-        df = pd.DataFrame(columns=columns)
-        with open("./Datasets/auto_mpg/auto-mpg.data") as file:
-            for line in file:
-
-                split = line.split()
-                split = split[:8] + [" ".join(split[8:])]
-                df = df.append({columns[i]: split[i] for i in range(0, len(split))}, ignore_index=True)
-        df["horsepower"][df["horsepower"] == "?"] = df["horsepower"][df["horsepower"] != "?"].astype(
-                np.float32).mean()
-        df.to_csv("./Datasets/auto_mpg/auto-mpg.csv", index=False)
-        """
 
     elif name == "iris":
         columns = ["sepal length", "sepal width", "petal length", "petal width", "class"]
@@ -40,12 +103,20 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
 
         df = pd.read_csv("./Datasets/iris/iris.data", names=columns)
 
-        encoder = LabelEncoder()
-        # df.loc[df[test_col] == "Iris-setosa"][test_col] = 0
-        # df.loc[df[test_col] == "Iris-versicolour"][test_col] = 1
-        # df.loc[df[test_col] == "Iris-viriginica"][test_col] = 2
-        df["class"] = encoder.fit_transform(df["class"])
-        df.loc[df["class"] == 2] = 1
+        df.loc[df[test_col] == "Iris-setosa"][test_col] = 0
+        df.loc[df[test_col] == "Iris-versicolour"][test_col] = 1
+        df.loc[df[test_col] == "Iris-viriginica"][test_col] = 2
+
+    elif name == "adult":
+
+        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\adult\adult.data", header=None)
+
+        return adult(df)
+
+    elif name == "titanic":
+
+        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\titanic\train.csv")
+        return titanic(df)
 
     return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
 
