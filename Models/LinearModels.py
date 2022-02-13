@@ -1,6 +1,5 @@
 import numpy as np
 from exceptions import DimensionsException
-from Optimizers.Optimizators import sgd
 
 
 class LinearRegression:
