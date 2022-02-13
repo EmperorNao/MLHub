@@ -12,7 +12,7 @@ from Optimizers.Optimizators import SAGDOptimizer
 # пообучаем на данных с разным шумом и посмотрим метрики:
 
 
-def sgd_test():
+def sagd_test():
 
     for scale in [0, 1.41, 4, 9, 25, 36, 100]:
 
@@ -87,4 +87,4 @@ def sgd_test():
 
 
 if __name__ == "__main__":
-    sgd_test()
+    sagd_test()

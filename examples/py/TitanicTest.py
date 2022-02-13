@@ -12,10 +12,10 @@ from datasets import get_dataset
 
 def titanic():
 
-    np.random.seed(30)
+    np.random.seed(41)
     x, y = get_dataset("titanic")
 
-    optim = SGDOptimizer(lr=1e-4, max_iter=1000, lam=0.85)
+    optim = SGDOptimizer(lr=1e-4, max_iter=1000, lam=0.9, batch_size=128)
     simple = LogisticRegression()
     sklearn = linear_model.LogisticRegression(max_iter=100)
 

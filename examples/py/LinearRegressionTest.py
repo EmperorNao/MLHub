@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import linear_model
 
-from Optimizers.Optimizators import SGDOptimizer
+from Optimizers.Optimizators import SAGDOptimizer
 from Models.LinearModels import LinearRegression
 from datasets import train_test_split
 from Metrics.metrics import rmse, mse
@@ -14,7 +14,7 @@ def LR_test():
         # max iter обеспечивает гораздо более лучшую сходимость
         # для улучшения качества пробуйте увеличить max_iter
 
-        optim = SGDOptimizer(lr=1e-6, max_iter=10000)
+        optim = SAGDOptimizer(lr=1e-6, max_iter=10000)
 
         simple = LinearRegression()
         sklearn = linear_model.LinearRegression()

@@ -6,16 +6,16 @@ from Models.LinearModels import LogisticRegression
 from datasets import train_test_split
 from Metrics.metrics import accuracy, precision, recall
 
-from Optimizers.Optimizators import SAGDOptimizer
+from Optimizers.Optimizators import SGDOptimizer
 from datasets import get_dataset
 
 
-def adult():
+def titanic():
 
-    np.random.seed(42)
-    x, y = get_dataset("adult")
+    np.random.seed(41)
+    x, y = get_dataset("titanic")
 
-    optim = SAGDOptimizer(lr=1e-4, max_iter=1000, lam=0.80)
+    optim = SGDOptimizer(lr=1e-4, max_iter=10000, lam=0.85, batch_size=128)
     simple = LogisticRegression()
     sklearn = linear_model.LogisticRegression(max_iter=100)
 
@@ -27,7 +27,7 @@ def adult():
     y_test = np.squeeze(y_test, -1)
 
     history = simple.fit(x_train, y_train, optim)
-    sklearn.fit(x_train, y_train)
+    sklearn.fit(x_train, np.squeeze(y_train, -1))
 
     y_pred_simple = simple.predict(x_test)
     y_pred_sklearn = sklearn.predict(x_test)
@@ -63,7 +63,7 @@ def adult():
 
 
 if __name__ == "__main__":
-    adult()
+    titanic()
 
 
 

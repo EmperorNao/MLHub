@@ -6,7 +6,7 @@ from Models.LinearModels import BinaryClassifier
 from datasets import train_test_split
 from Metrics.metrics import accuracy
 
-from Optimizers.Optimizators import SGDOptimizer
+from Optimizers.Optimizators import SAGDOptimizer
 # будем бенчмаркать с sklearn
 
 # пообучаем на данных с разным шумом и посмотрим метрики:
@@ -17,7 +17,7 @@ def binlog_test():
     for scale in [3, 5, 9]:
 
 
-        optim = SGDOptimizer(lr=1e-4, max_iter=10000, lam=0.95)
+        optim = SAGDOptimizer(lr=1e-4, max_iter=10000, lam=0.95)
         simple = BinaryClassifier()
         sklearn = linear_model.LogisticRegression()
 

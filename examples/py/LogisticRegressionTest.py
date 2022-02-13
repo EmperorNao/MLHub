@@ -6,7 +6,7 @@ from Models.LinearModels import LogisticRegression
 from datasets import train_test_split
 from Metrics.metrics import accuracy
 
-from Optimizers.Optimizators import SGDOptimizer
+from Optimizers.Optimizators import SAGDOptimizer
 # будем бенчмаркать с sklearn
 
 # пообучаем на данных с разным шумом и посмотрим метрики:
@@ -16,7 +16,7 @@ def log_test():
 
     for scale in [1, 2, 3, 4, 5]:
 
-        optim = SGDOptimizer(lr=1e-2, max_iter=10000, lam=0.95)
+        optim = SAGDOptimizer(lr=1e-2, max_iter=10000, lam=0.95)
         simple = LogisticRegression()
         sklearn = linear_model.LogisticRegression()
 
