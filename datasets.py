@@ -81,8 +81,25 @@ def titanic(df):
     return np.hstack(x), y
 
 
+def dota(df):
+
+    target = ['RadiantWon']
+    numerical = ['AverWRAllyHeroes','AverWRAllyGamers','AverWREnemyHeroes','AverWREnemyGamers']
+
+    un = df[target].iloc[:, 0].unique()
+    y = (df[target] == un[0]).to_numpy(dtype="int")
+
+    x = []
+    for col in numerical:
+        x.append(np.expand_dims(scale(df[col].to_numpy()), -1))
+
+    return np.hstack(x), y
+
 def get_dataset(name) -> (np.ndarray, np.ndarray):
 
+    df = None
+    train_col = []
+    test_col = []
     if name == "forestfires":
         df = pd.read_csv("./Datasets/forestfires/forestfires.csv")
         train_col = ["FFMC", "DMC", "DC", "ISI", "temp", "RH", "wind", "rain"]
@@ -94,7 +111,7 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
         train_col = ["displacement", "horsepower", "weight", "acceleration"]
         test_col = ["mpg"]
 
-        df = pd.read_csv("./Datasets/auto_mpg/auto-mpg.csv")
+        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\auto_mpg\auto-mpg.csv")
 
     elif name == "iris":
         columns = ["sepal length", "sepal width", "petal length", "petal width", "class"]
@@ -117,6 +134,50 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
 
         df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\titanic\train.csv")
         return titanic(df)
+
+    elif name == "random-linear-dots":
+
+        N = 1000
+        # x, y = get_dataset("auto-mpg")
+        pairs = np.array([np.array([i, i * 5 + 3 + np.random.normal(scale=1)]) for i in range(0, N)])
+        x = np.expand_dims(pairs[:, 0], -1)
+        y = pairs[:, 1]
+        return x, y
+
+    elif name == "random-binary_clouds":
+
+        N = 200
+        N2 = 25
+
+        n_pos = int(N // 2 + np.random.randint(-N2, N2))
+        n_neg = int(N // 2 + np.random.randint(-N2, N2))
+
+        pos_x = 10
+        pos_y = 10
+
+        neg_x = -10
+        neg_y = 10
+
+        pos_pairs = np.array([np.array(
+            [pos_x + np.random.normal(scale=1), pos_y + np.random.normal(scale=1)])
+            for i in range(0, n_pos)])
+
+        pos_answers = np.array([1] * n_pos)
+
+        neg_pairs = np.array([np.asarray(
+            [neg_x + np.random.normal(scale=1), neg_y + np.random.normal(scale=1)])
+            for i in range(0, n_neg)])
+        neg_answers = np.array([0] * n_neg)
+
+        x = np.vstack([pos_pairs, neg_pairs])
+        y = np.expand_dims(np.hstack([pos_answers, neg_answers]), -1)
+        return x, y
+
+    elif name == "dota":
+
+        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\dota\datafile.txt")
+        return dota(df)
+
 
     return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
 
