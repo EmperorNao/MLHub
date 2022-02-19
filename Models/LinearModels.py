@@ -66,13 +66,14 @@ class LinearRegression:
 
 class BinaryClassifier:
 
-    def __init__(self, weights: np.ndarray = None, L2_coefficient: float = 0, logging=False):
+    def __init__(self, optimizer, weights: np.ndarray = None, L2_coefficient: float = 0, logging=False):
 
+        self.optimizer = optimizer
         self.weights = weights
         self.L2_coefficient = L2_coefficient if L2_coefficient != 0 else 0.05
         self.logging=logging
 
-    def fit(self, x: np.ndarray, y: np.ndarray, optimizer):
+    def fit(self, x: np.ndarray, y: np.ndarray):
 
         if x.shape[0] != y.shape[0]:
             raise DimensionsException("X and y has different number of objects")
@@ -90,7 +91,7 @@ class BinaryClassifier:
             else:
                 y_transformed.append(0)
 
-        w, q, history = optimizer.fit(x_padded, np.expand_dims(y, -1), self.loss, self.grad_loss, get_hist=True)
+        w, q, history = self.optimizer.fit(x_padded, np.expand_dims(y, -1), self.loss, self.grad_loss, get_hist=True)
         self.weights = w
 
         return history
@@ -139,13 +140,14 @@ class BinaryClassifier:
 
 class LogisticRegression:
 
-    def __init__(self, weights: np.ndarray = None, L2_coefficient: float = 0, logging=False):
+    def __init__(self, optimizer, weights: np.ndarray = None, L2_coefficient: float = 0, logging=False):
 
+        self.optimizer = optimizer
         self.weights = weights
         self.L2_coefficient = L2_coefficient if L2_coefficient != 0 else 0.05
         self.logging=logging
 
-    def fit(self, x: np.ndarray, y: np.ndarray, optimizer):
+    def fit(self, x: np.ndarray, y: np.ndarray):
 
         if x.shape[0] != y.shape[0]:
             raise DimensionsException("X and y has different number of objects")
@@ -168,7 +170,7 @@ class LogisticRegression:
             z[np.where(self.classes == el_y)] = 1
             y_transformed.append(z)
 
-        w, q, history = optimizer.fit(x_padded, np.array(y_transformed), self.loss, self.grad_loss, w=self.weights, get_hist=True)
+        w, q, history = self.optimizer.fit(x_padded, np.array(y_transformed), self.loss, self.grad_loss, w=self.weights, get_hist=True)
 
         self.weights = w
         return history
