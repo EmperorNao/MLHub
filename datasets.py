@@ -116,13 +116,15 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
     elif name == "iris":
         columns = ["sepal length", "sepal width", "petal length", "petal width", "class"]
         train_col = ["sepal length", "sepal width", "petal length", "petal width"]
-        test_col = ["class"]
+        test_col = "class"
 
-        df = pd.read_csv("./Datasets/iris/iris.data", names=columns)
+        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\iris\iris.data", names=columns)
 
-        df.loc[df[test_col] == "Iris-setosa"][test_col] = 0
-        df.loc[df[test_col] == "Iris-versicolour"][test_col] = 1
-        df.loc[df[test_col] == "Iris-viriginica"][test_col] = 2
+        df.loc[df[test_col] == "Iris-setosa", test_col] = 0
+        df.loc[df[test_col] == "Iris-versicolor", test_col] = 1
+        df.loc[df[test_col] == "Iris-virginica", test_col] = 2
+        return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
+
 
     elif name == "adult":
 
