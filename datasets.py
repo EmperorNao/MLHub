@@ -123,8 +123,8 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
         df.loc[df[test_col] == "Iris-setosa", test_col] = 0
         df.loc[df[test_col] == "Iris-versicolor", test_col] = 1
         df.loc[df[test_col] == "Iris-virginica", test_col] = 2
-        return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
 
+        return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
 
     elif name == "adult":
 
@@ -146,7 +146,7 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
         y = pairs[:, 1]
         return x, y
 
-    elif name == "random-binary_clouds":
+    elif name == "random-binary_clouds" or name == "binary":
 
         N = 200
         N2 = 25
@@ -175,6 +175,35 @@ def get_dataset(name) -> (np.ndarray, np.ndarray):
         y = np.expand_dims(np.hstack([pos_answers, neg_answers]), -1)
         return x, y
 
+    elif name == "binary_high_scale":
+
+        N = 1000
+        N2 = 300
+
+        n_pos = int(N // 2 + np.random.randint(-N2, N2))
+        n_neg = int(N // 2 + np.random.randint(-N2, N2))
+
+        pos_x = 1
+        pos_y = 3
+
+        neg_x = -1
+        neg_y = -3
+
+        pos_pairs = np.array([np.array(
+            [pos_x + np.random.normal(scale=1.2), pos_y + np.random.normal(scale=25)])
+            for i in range(0, n_pos)])
+
+        pos_answers = np.array([1] * n_pos)
+
+        neg_pairs = np.array([np.asarray(
+            [neg_x + np.random.normal(scale=1.2), neg_y + np.random.normal(scale=25)])
+            for i in range(0, n_neg)])
+        neg_answers = np.array([0] * n_neg)
+
+        x = np.vstack([pos_pairs, neg_pairs])
+        y = np.expand_dims(np.hstack([pos_answers, neg_answers]), -1)
+        return x, y
+
     elif name == "dota":
 
         df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\dota\datafile.txt")
@@ -193,6 +222,11 @@ def train_test_split(x: np.ndarray,
 
     if 1 < ratio < 0:
         raise ValueError(f"Ratio need to be in [0, 1], provided {ratio}")
+
+    idx = np.random.permutation(x.shape[0])
+
+    x = x[idx]
+    y = y[idx]
 
     idx_full = range(0, x.shape[0])
     size = ceil(x.shape[0] * ratio)

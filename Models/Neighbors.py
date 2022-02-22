@@ -2,7 +2,7 @@ import numpy as np
 from Distances.distances import euclidian_distance
 
 
-class KNN:
+class KNNClassifier:
 
     def __init__(self, k = 1, dist = euclidian_distance):
 
@@ -15,24 +15,20 @@ class KNN:
 
     def fit(self, x, y):
 
-        self.answ = y
         self.obj = x
+        self.answ = y
         self.classes = np.unique(self.answ)
-
 
     def predict(self, x):
 
         m = x.shape[0]
         n = self.obj.shape[0]
-        w = np.array([np.argsort(np.array([self.dist(x[j], self.obj[i]) for i in range(n)]))[:min(self.k, n)] for j in range(m)])
 
-        classes = np.zeros((m, self.classes.shape[0]))
-        for i, cls in enumerate(self.classes):
-            sq = np.squeeze(self.answ, -1)
-            idx = np.array([sq for i in range(m)])
+        pred = np.zeros(m, dtype='int32')
+        for i, obj in enumerate(x):
+            idx = np.argsort(np.array([self.dist(obj, example) for example in self.obj]))[:min(self.k, n)]
 
-            prod = idx * w
-            sum = np.sum(prod, axis = 1)
-            classes[:, i] = sum
+            labels = np.squeeze(self.answ[idx], -1)
+            pred[i] = np.bincount(labels).argmax()
 
-        return np.expand_dims(self.classes[np.argmax(classes, axis = 1)], -1)
+        return np.array(pred)
