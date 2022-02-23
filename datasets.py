@@ -86,6 +86,19 @@ def dota(df):
 
     return np.hstack(x), y
 
+def iris():
+
+    columns = ["sepal length", "sepal width", "petal length", "petal width", "class"]
+    train_col = ["sepal length", "sepal width", "petal length", "petal width"]
+    test_col = "class"
+
+    df = pd.read_csv(r".\Datasets\iris\iris.data", names=columns)
+
+    df.loc[df[test_col] == "Iris-setosa", test_col] = 0
+    df.loc[df[test_col] == "Iris-versicolor", test_col] = 1
+    df.loc[df[test_col] == "Iris-virginica", test_col] = 2
+
+    return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
 
 def get_dataset(name, scale_categorical=True, scale_numerical=True) -> (np.ndarray, np.ndarray):
 
@@ -103,30 +116,21 @@ def get_dataset(name, scale_categorical=True, scale_numerical=True) -> (np.ndarr
         train_col = ["displacement", "horsepower", "weight", "acceleration"]
         test_col = ["mpg"]
 
-        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\auto_mpg\auto-mpg.csv")
+        df = pd.read_csv(r".\Datasets\auto_mpg\auto-mpg.csv")
 
     elif name == "iris":
-        columns = ["sepal length", "sepal width", "petal length", "petal width", "class"]
-        train_col = ["sepal length", "sepal width", "petal length", "petal width"]
-        test_col = "class"
 
-        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\iris\iris.data", names=columns)
-
-        df.loc[df[test_col] == "Iris-setosa", test_col] = 0
-        df.loc[df[test_col] == "Iris-versicolor", test_col] = 1
-        df.loc[df[test_col] == "Iris-virginica", test_col] = 2
-
-        return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
+        return iris()
 
     elif name == "adult":
 
-        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\adult\adult.data", header=None)
+        df = pd.read_csv(r".\Datasets\adult\adult.data", header=None)
 
         return adult(df)
 
     elif name == "titanic":
 
-        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\titanic\train.csv")
+        df = pd.read_csv(r".\Datasets\titanic\train.csv")
         return titanic(df)
 
     elif name == "random-linear-dots":
