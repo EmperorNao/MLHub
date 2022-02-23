@@ -116,7 +116,8 @@ def get_dataset(name, scale_categorical=True, scale_numerical=True) -> (np.ndarr
         train_col = ["displacement", "horsepower", "weight", "acceleration"]
         test_col = ["mpg"]
 
-        df = pd.read_csv(r".\Datasets\auto_mpg\auto-mpg.csv")
+        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\auto_mpg\auto-mpg.csv")
+        return scale(df[train_col].to_numpy(dtype=np.float32)), df[test_col].to_numpy(dtype=np.float32)
 
     elif name == "iris":
 
@@ -130,7 +131,7 @@ def get_dataset(name, scale_categorical=True, scale_numerical=True) -> (np.ndarr
 
     elif name == "titanic":
 
-        df = pd.read_csv(r".\Datasets\titanic\train.csv")
+        df = pd.read_csv(r"P:\D\Programming\MLHub\Datasets\titanic\train.csv")
         return titanic(df)
 
     elif name == "random-linear-dots":

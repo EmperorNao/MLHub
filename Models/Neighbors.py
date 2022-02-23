@@ -59,7 +59,7 @@ class KNNClassifier:
         for i, obj in enumerate(x):
             idx = np.argsort(np.array([self.dist(obj, example) for example in self.obj]))[:min(self.k, n)]
 
-            labels = np.squeeze(self.answ[idx], -1)
+            labels = self.answ[idx]
 
             answ = np.zeros(np.unique(self.answ).shape[0])
             for w, cls in zip(weights, labels):
@@ -79,7 +79,7 @@ class KNNClassifier:
             d = np.array([self.dist(obj, example) for example in self.obj])
             idx = np.argsort(d)[:min(self.k, n)]
 
-            labels = np.squeeze(self.answ[idx], -1)
+            labels = self.answ[idx]
 
             answ = np.zeros(np.unique(self.answ).shape[0])
 

@@ -18,7 +18,6 @@ def pipeline_test():
     pipeline({'simple': simple, 'sklearn': sklearn}, {'rmse': rmse, 'mse': mse}, x, y)
 
 
-
 if __name__ == "__main__":
 
     pipeline_test()

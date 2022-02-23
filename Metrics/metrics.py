@@ -1,5 +1,4 @@
 import numpy as np
-from exceptions import DimensionsException
 
 
 def is_valid_input(y_real, y_pred):

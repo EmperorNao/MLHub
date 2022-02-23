@@ -56,6 +56,7 @@ def knn_test_prodv():
     np.random.seed(41)
     x, y = get_dataset("titanic")
 
+    y = np.squeeze(y, -1)
     knn = KNNClassifier(k=15)
     knn_linear = KNNClassifier(k=15, weighted='linear')
     knn_expo = KNNClassifier(k=15, weighted='exponential', q=0.9)

@@ -10,14 +10,14 @@ def pipeline(models: dict, metrics: dict, x, y, plotters: dict = dict()):
     y_train, y_test = y_pair
 
     for model in models.values():
-        model.fit(x, y)
+        model.fit(x_train, y_train)
 
     for modelname, model in models.items():
         y_pred = model.predict(x_test)
 
         print(f"Model {modelname}")
         for metricname, metric in metrics.items():
-            print(f"{metricname} = {metric(np.squeeze(y_test, -1), y_pred)}")
+            print(f"{metricname} = {metric(y_test, y_pred)}")
         print()
 
         for name, plotter in plotters.items():
