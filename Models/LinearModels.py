@@ -224,7 +224,7 @@ class LogisticRegression:
 
         x_padded = np.hstack([x, ones])
 
-        prob = self.softmax(self.softmax(np.dot(x_padded, self.weights)))
+        prob = self.softmax(np.dot(x_padded, self.weights))
         pred = np.argmax(prob, axis=1)
         if self.logging:
             print(prob)

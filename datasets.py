@@ -86,7 +86,8 @@ def dota(df):
 
     return np.hstack(x), y
 
-def get_dataset(name) -> (np.ndarray, np.ndarray):
+
+def get_dataset(name, scale_categorical=True, scale_numerical=True) -> (np.ndarray, np.ndarray):
 
     df = None
     train_col = []
