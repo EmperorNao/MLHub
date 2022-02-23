@@ -2,7 +2,7 @@ import numpy as np
 from datasets import train_test_split
 
 
-def pipeline(models: dict, metrics: dict, x, y):
+def pipeline(models: dict, metrics: dict, x, y, plotters: dict = dict()):
 
     x_pair, y_pair = train_test_split(x, y, ratio=0.75)
 
@@ -18,8 +18,11 @@ def pipeline(models: dict, metrics: dict, x, y):
         print(f"Model {modelname}")
         for metricname, metric in metrics.items():
             print(f"{metricname} = {metric(np.squeeze(y_test, -1), y_pred)}")
-
         print()
+
+        for name, plotter in plotters.items():
+            plotter(modelname, x, y, x_test, y_pred)
+
 
 
 def get_pipeline_res(models: dict, x, y):

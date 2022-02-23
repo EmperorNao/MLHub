@@ -52,13 +52,9 @@ def adult(df):
 
 def titanic(df):
 
-    #df = df.dropna()
     df = df.apply(lambda x: x.fillna(x.value_counts().index[0]))
     numerical = ['Age', 'Fare', ]
     categorical = ['Pclass', 'Sex', 'SibSp', 'Embarked']
-    # columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
-    #            'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week', 'native-country',
-    #            '>50K']
     target = ['Survived']
 
     #df.columns = columns
@@ -69,14 +65,9 @@ def titanic(df):
     processed = []
     # one-hot-encoding categorical
     for col in categorical:
-        x.append(one_hot_encoding(df[col]))
+        x.append(scale(one_hot_encoding(df[col])))
 
     x += [np.expand_dims(scale(df[col].to_numpy()), -1) for col in numerical]
-    for col in numerical:
-        x.append(np.expand_dims(scale(df[col].to_numpy()), -1))
-
-    for ohe in processed:
-        x.append(scale(ohe))
 
     return np.hstack(x), y
 

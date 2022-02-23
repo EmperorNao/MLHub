@@ -11,8 +11,6 @@ def test_clustering(models: dict, metrics: dict, x, y):
         for metricname, metric in metrics.items():
             print(f"{metricname} = {metric(y, outp)}")
 
-        print()
-
 
 def get_clustering_res(models: dict, x):
 
