@@ -20,8 +20,7 @@ class LinearRegression:
 
     def fit(self, x: np.ndarray, y: np.ndarray):
 
-        if x.shape[0] != y.shape[0]:
-            raise DimensionsException("X and y has different number of objects")
+        assert x.shape[0] == y.shape[0]
 
         n_objects = x.shape[0]
         n_features = x.shape[1] + 1
@@ -31,11 +30,14 @@ class LinearRegression:
 
         l_i = np.eye(n_features, n_features)
 
+        hist = []
         if self.analytic_solution or not self.optimizer:
             w = np.dot(np.linalg.inv(np.dot(x_padded.T, x_padded) +  self.L2_coefficient * l_i), np.dot(x_padded.T, y))
         else:
-            w, q = self.optimizer.fit(x_padded, y, self.loss, self.grad_loss)
+            w, q, hist = self.optimizer.fit(x_padded, y, self.loss, self.grad_loss, get_hist=True)
         self.weights = w
+
+        return hist
 
     def loss(self, w: np.ndarray, x: np.ndarray, y: np.ndarray):
         # x.shape = m x n
@@ -113,7 +115,7 @@ class BinaryClassifier:
         sigm_res = self.sigmoid(x, w)
 
         return np.mean(-1 * y * np.log(sigm_res) + \
-        -1 * (np.ones_like(y) - y) * np.log(np.ones([x.shape[0], w.shape[1]]) - sigm_res))
+        -1 * (1 - y) * np.log(1 - sigm_res))
 
     def grad_loss(self, w: np.ndarray, x: np.ndarray, y: np.ndarray):
         # x.shape = m x n
@@ -140,8 +142,14 @@ class BinaryClassifier:
 
 class LogisticRegression:
 
-    def __init__(self, optimizer, weights: np.ndarray = None, L2_coefficient: float = 0, logging=False):
+    def __init__(self, optimizer, weights: np.ndarray = None, L2_coefficient: float = 0, logging=False) -> np.ndarray:
+        """
 
+        :param optimizer: оптимизатор, которые будет использоваться для
+        :param weights:
+        :param L2_coefficient:
+        :param logging:
+        """
         self.optimizer = optimizer
         self.weights = weights
         self.L2_coefficient = L2_coefficient if L2_coefficient != 0 else 0.05

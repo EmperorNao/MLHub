@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import linear_model
 
-from Models.LinearModels import BinaryClassifier
+from Models.LinearModels import BinaryClassifier, LogisticRegression
 from datasets import train_test_split
 from Metrics.metrics import accuracy
 
-from Optimizers.Optimizators import SAGDOptimizer
+from Optimizers.Optimizators import SGDOptimizer
 # будем бенчмаркать с sklearn
 
 # пообучаем на данных с разным шумом и посмотрим метрики:
@@ -14,14 +14,14 @@ from Optimizers.Optimizators import SAGDOptimizer
 
 def binlog_test():
 
-    for scale in [3, 5, 9]:
+    for scale in [9]:
 
 
-        optim = SAGDOptimizer(lr=1e-4, max_iter=10000, lam=0.95)
-        simple = BinaryClassifier()
+        optim = SGDOptimizer(lr=1e-4, max_iter=500, lam=0.85, batch_size=128)
+        simple = LogisticRegression(optim)
         sklearn = linear_model.LogisticRegression()
 
-        N = 200
+        N = 400
         N2 = 25
 
         n_pos = int(N // 2 + np.random.randint(-N2, N2))
@@ -57,7 +57,7 @@ def binlog_test():
         x_train, x_test = x_pair
         y_train, y_test = y_pair
 
-        simple.fit(x_train, y_train, optim)
+        hist = simple.fit(x_train, y_train)
         sklearn.fit(x_train, y_train)
 
         y_pred_simple = simple.predict(x_test)
@@ -66,6 +66,8 @@ def binlog_test():
         print(f"Scale = {scale}")
         print(f"ACC on SLKEARN = {accuracy(y_test, y_pred_sklearn)}")
         print(f"ACC on our LR = {accuracy(y_test, y_pred_simple)}")
+
+        plt.plot(hist)
 
         fig = plt.figure(figsize = (15, 10))
 

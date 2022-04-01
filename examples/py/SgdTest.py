@@ -13,10 +13,10 @@ from datasets import get_dataset
 def titanic():
 
     np.random.seed(41)
-    x, y = get_dataset("titanic")
+    x, y = get_dataset("binary_high_scale")
 
-    optim = SGDOptimizer(lr=1e-4, max_iter=10000, lam=0.85, batch_size=128)
-    simple = LogisticRegression()
+    optim = SGDOptimizer(lr=1e-4, max_iter=500, lam=0.85, batch_size=128)
+    simple = LogisticRegression(optim)
     sklearn = linear_model.LogisticRegression(max_iter=100)
 
     x_pair, y_pair = train_test_split(x, y, ratio=0.75)
@@ -26,7 +26,7 @@ def titanic():
 
     y_test = np.squeeze(y_test, -1)
 
-    history = simple.fit(x_train, y_train, optim)
+    history = simple.fit(x_train, y_train)
     sklearn.fit(x_train, np.squeeze(y_train, -1))
 
     y_pred_simple = simple.predict(x_test)

@@ -3,6 +3,10 @@ import numpy as np
 from exceptions import DimensionsException
 from math import ceil
 from sklearn.preprocessing import LabelEncoder
+from os.path import join
+
+
+REL_PATH = '..\\..\\Datasets\\'
 
 
 def one_hot_encoding(x: pd.DataFrame) -> np.ndarray:
@@ -27,7 +31,7 @@ def adult(df):
 
     numerical = ['age', 'fnlwgt', 'education-num', 'capital-gain', 'capital-loss', 'hours-per-week']
     categorical = ['workclass', 'education', 'marital-status', 'occupation', 'relationship', 'race', 'sex', 'native-country']
-    columns = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex','capital-gain', 'capital-loss', 'hours-per-week', 'native-country', '>50K']
+    columns = ['age', 'wofkclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation', 'relationship', 'race', 'sex','capital-gain', 'capital-loss', 'hours-per-week', 'native-country', '>50K']
     target = ['>50K']
 
     df.columns = columns
@@ -86,19 +90,21 @@ def dota(df):
 
     return np.hstack(x), y
 
+
 def iris():
 
+    path = join(REL_PATH, 'iris\\iris.data')
     columns = ["sepal length", "sepal width", "petal length", "petal width", "class"]
     train_col = ["sepal length", "sepal width", "petal length", "petal width"]
     test_col = "class"
 
-    df = pd.read_csv(r".\Datasets\iris\iris.data", names=columns)
-
+    df = pd.read_csv(path, names=columns)
     df.loc[df[test_col] == "Iris-setosa", test_col] = 0
     df.loc[df[test_col] == "Iris-versicolor", test_col] = 1
     df.loc[df[test_col] == "Iris-virginica", test_col] = 2
 
     return df[train_col].to_numpy(dtype=np.float32), df[test_col].to_numpy(dtype=np.float32)
+
 
 def get_dataset(name, scale_categorical=True, scale_numerical=True) -> (np.ndarray, np.ndarray):
 
@@ -121,7 +127,7 @@ def get_dataset(name, scale_categorical=True, scale_numerical=True) -> (np.ndarr
 
     elif name == "iris":
 
-        return iris()
+        return iris(rel_path)
 
     elif name == "adult":
 
